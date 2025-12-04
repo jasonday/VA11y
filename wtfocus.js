@@ -75,7 +75,7 @@ function WTFocus() {
         WTFocusPanel.setAttribute("tabindex", "-1");
         WTFocusPanel.setAttribute("role", "region");
         WTFocusPanel.setAttribute("aria-label", "Accessibility properties panel");
-
+        
         const panelHeader = document.createElement("div");
         panelHeader.setAttribute("id", "WTFocusPanelHeader");
         panelHeader.style.cursor = "move";
@@ -217,37 +217,98 @@ function WTFocus() {
 
     function getElementState(el) {
         const states = {
+            // ARIA states
+            "aria-busy": "busy",
+            "aria-checked": "checked",
+            "aria-current": "current",
+            "aria-disabled": "disabled",
             "aria-expanded": "expanded",
+            "aria-grabbed": "grabbed",
+            "aria-hidden": "hidden",
+            "aria-invalid": "invalid",
             "aria-pressed": "pressed",
             "aria-selected": "selected",
-            "aria-checked": "checked",
-            "aria-disabled": "disabled",
-            "aria-invalid": "invalid",
+            // ARIA properties that indicate state
+            "aria-haspopup": "haspopup",
+            "aria-readonly": "readonly",
             "aria-required": "required",
+            "aria-modal": "modal",
+            "aria-multiline": "multiline",
+            "aria-multiselectable": "multiselectable",
+            // HTML attributes
             "disabled": "disabled",
             "required": "required",
-            "checked": "checked"
+            "readonly": "readonly",
+            "checked": "checked",
+            "selected": "selected",
+            "hidden": "hidden",
+            "open": "open",
+            "multiple": "multiple",
+            "autofocus": "autofocus",
+            "draggable": "draggable",
+            "contenteditable": "contenteditable",
+            "spellcheck": "spellcheck"
         };
         let elementsToCheck = [el];
-        const host = el.getRootNode().host;
-        if (host) {
-            elementsToCheck.push(host);
+        
+        // Check shadow host if element is inside shadow DOM
+        const rootNode = el.getRootNode();
+        if (rootNode && rootNode.host) {
+            elementsToCheck.push(rootNode.host);
         }
+        
+        // Check parent custom element
         const parentCustomElement = el.closest(':defined');
         if (parentCustomElement && parentCustomElement !== el) {
             elementsToCheck.push(parentCustomElement);
         }
+        
+        // For radio/checkbox inputs, also check if the element itself has the checked property (not just attribute)
         const foundStates = new Set();
+        
+        // Special handling for radio buttons and checkboxes
+        if (el.type === 'radio' || el.type === 'checkbox') {
+            if (el.checked) {
+                foundStates.add('checked');
+            }
+        }
+        
         elementsToCheck.forEach(element => {
             for (const [attr, a11yState] of Object.entries(states)) {
                 if (element.hasAttribute(attr)) {
                     const value = element.getAttribute(attr);
-                    if (value !== 'false') {
+                    // Skip if value is explicitly 'false' or null
+                    if (value === 'false' || value === null) {
+                        continue;
+                    }
+                    // For boolean attributes like 'checked', 'disabled', etc., presence means true
+                    // But for aria attributes, check the value more carefully
+                    if (attr.startsWith('aria-')) {
+                        // ARIA attributes: only add if value is 'true' or the attribute name (for boolean)
+                        if (value === 'true' || value === attr || value === '') {
+                            foundStates.add(a11yState);
+                        }
+                    } else {
+                        // HTML boolean attributes: presence means true (unless explicitly 'false')
                         foundStates.add(a11yState);
                     }
                 }
             }
+            
+            // Also check for the checked property on the host element for web components
+            if (element !== el && (element.tagName && element.tagName.includes('-'))) {
+                // This is likely a custom element/web component
+                if (element.checked === true) {
+                    foundStates.add('checked');
+                } else if (element.hasAttribute('checked')) {
+                    const checkedValue = element.getAttribute('checked');
+                    if (checkedValue !== 'false') {
+                        foundStates.add('checked');
+                    }
+                }
+            }
         });
+        
         return Array.from(foundStates).join(' ');
     }
 
@@ -282,22 +343,22 @@ function WTFocus() {
     function getAllFocusableElements(rootNode) {
         const focusableElements = rootNode.querySelectorAll('a[href],button,select,input:not([type="hidden"]),textarea,summary,area,[tabindex]:not(#WTFocusPanel):not([tabindex^="-1"]),[contenteditable]:not([contenteditable="false"])');
         const allFocusables = [...focusableElements];
-
+        
         const allElements = rootNode.querySelectorAll('*');
-
+    
         allElements.forEach(element => {
           if (element.shadowRoot) {
             allFocusables.push(...getAllFocusableElements(element.shadowRoot));
           }
         });
-
+        
         return allFocusables;
     }
 
     function generateSummary() {
         const focusables = getAllFocusableElements(document);
         let summary = "IMPORTANT DISCLAIMER!\n\nThis text file is a *very approximate representation* \nof what this page may be like for screen reader users:\n\n";
-
+        
         focusables.forEach(el => {
             const { name } = getAccessibleName(el);
             const role = getElementRole(el);
@@ -340,7 +401,7 @@ function WTFocus() {
 
     function handleFocus(event) {
         let focusable = event.target;
-
+        
         setTimeout(() => {
             const activeElement = getActiveElement();
             if (activeElement && activeElement !== focusable) {
@@ -410,7 +471,7 @@ function WTFocus() {
     checkForDuplicateAccNames();
 
     document.addEventListener('focusin', handleFocus);
-
+    
     // Trigger for the initial focused element
     const initialFocus = getActiveElement();
     if (initialFocus) {
