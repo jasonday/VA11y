@@ -196,6 +196,14 @@ function aName() {
             }
         }
         
+        // Check if element itself has a shadow root with text content
+        if (element.shadowRoot) {
+            const shadowText = element.shadowRoot.textContent.trim();
+            if (shadowText) {
+                return { name: shadowText, source: 'Shadow DOM text content' };
+            }
+        }
+        
         if (element.textContent.trim()) {
             return { name: element.textContent.trim(), source: 'Inner text content' };
         }
