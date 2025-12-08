@@ -34,8 +34,8 @@ javascript: (function () {
             }
 
             
-            if (window.aNameInstance.aNameVersion) {
-                console.log('aName version:', window.aNameInstance.aNameVersion);
+           if (window.aNameVersion) {
+                console.log('aName version:', window.aNameVersion);
             }
 
         } catch (error) {
