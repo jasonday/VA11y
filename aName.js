@@ -1,5 +1,5 @@
 "use strict";
-const aNameVersion = "1.0 beta"
+const aNameVersion = "1.0 beta";
 function aName() {
     const startFocusPoint = getActiveElement();
     let elCount = 1;
