@@ -1,6 +1,6 @@
 javascript: (function () {
     'use strict';
-    // template for bookmarklet code, using jsdelivr as cdn for bookmarklet code
+    
     // Avoid activating more than once
     if (window.aNameInstance?.initialized) {
         console.warn('aName bookmarklet already active');
@@ -33,10 +33,11 @@ javascript: (function () {
                 console.log('aName.js auto-executed successfully');
             }
 
-           if (window.aNameInstance.aNameVersion) {
+            
+            if (window.aNameInstance.aNameVersion) {
                 console.log('aName version:', window.aNameInstance.aNameVersion);
             }
-            
+
         } catch (error) {
             console.error('Error initializing aName:', error);
             alert('Failed to initialize aName bookmarklet');
