@@ -172,6 +172,35 @@ function aName() {
                 return { name: label.textContent.trim(), source: '<label> text' };
             }
         }
+        
+        // Check for slotted content in shadow DOM
+        const rootNode = element.getRootNode();
+        if (rootNode !== document) {
+            // We're inside a shadow DOM, look for slot references in the host
+            const host = rootNode.host;
+            if (host) {
+                // Look for any slot elements in the shadow DOM that might reference content
+                const slots = rootNode.querySelectorAll('slot[name]');
+                let slottedName = '';
+                
+                for (const slot of slots) {
+                    const slotName = slot.getAttribute('name');
+                    if (slotName) {
+                        // Find the element in the light DOM that's assigned to this slot
+                        const slottedElements = host.querySelectorAll(`[slot="${slotName}"]`);
+                        if (slottedElements.length > 0) {
+                            slottedName = Array.from(slottedElements)
+                                .map(el => el.textContent.trim())
+                                .join(' ');
+                            if (slottedName) {
+                                return { name: slottedName, source: `<slot name="${slotName}"> content` };
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        
         if (element.textContent.trim()) {
             return { name: element.textContent.trim(), source: 'Inner text content' };
         }
@@ -232,22 +261,13 @@ function aName() {
             "aria-haspopup": "haspopup",
             "aria-readonly": "readonly",
             "aria-required": "required",
-            "aria-modal": "modal",
-            "aria-multiline": "multiline",
-            "aria-multiselectable": "multiselectable",
             // HTML attributes
             "disabled": "disabled",
             "required": "required",
             "readonly": "readonly",
             "checked": "checked",
             "selected": "selected",
-            "hidden": "hidden",
-            "open": "open",
-            "multiple": "multiple",
-            "autofocus": "autofocus",
-            "draggable": "draggable",
-            "contenteditable": "contenteditable",
-            "spellcheck": "spellcheck"
+            "hidden": "hidden"
         };
         let elementsToCheck = [el];
         
@@ -295,15 +315,17 @@ function aName() {
                 }
             }
             
-            // Also check for the checked property on the host element for web components
+            // Also check for properties on the host element for web components
             if (element !== el && (element.tagName && element.tagName.includes('-'))) {
                 // This is likely a custom element/web component
-                if (element.checked === true) {
-                    foundStates.add('checked');
-                } else if (element.hasAttribute('checked')) {
-                    const checkedValue = element.getAttribute('checked');
-                    if (checkedValue !== 'false') {
-                        foundStates.add('checked');
+                // Check if any state properties are set directly on the component
+                for (const [attr, a11yState] of Object.entries(states)) {
+                    // Extract property name (remove 'aria-' prefix if present)
+                    const propName = attr.startsWith('aria-') ? attr.substring(5) : attr;
+                    
+                    // Check if the property exists and is true
+                    if (element[propName] === true) {
+                        foundStates.add(a11yState);
                     }
                 }
             }
