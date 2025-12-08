@@ -46,11 +46,13 @@
         <p>
           aName reports an approximation of the accessible name of the focused element. It returns the text label, where that's defined, the focused element type, any attached descriptions, and the current state if applicable. For elements within the shadow DOM, aName inspects both the focused element and its host to determine attribute states. It also attempts to resolve names from slot references and distributed text content. 
         </p>
-        <h4>Notes:</h4>
-        <ul>
-          <li>Because accessible name computation can vary across browsers and component implementations, results may not always be consistent or cover every possible shadow DOM permutation.</li>
-          <li>To get the state calculation, [TAB] away and then back to the element</li>
-        </ul>
+        <p>
+          Notes:
+          <ul>
+            <li>Because accessible name computation can vary across browsers and component implementations, results may not always be consistent or cover every possible shadow DOM permutation.</li>
+            <li>To get the state calculation, [TAB] away and then back to the element</li>
+          </ul>
+        </p>
         <footer>
           Drag <a class="bookmarklet" href="javascript:(function(){!function(){&quot;use strict&quot;;if(window.aNameInstance?.initialized)return void console.warn(&quot;aName bookmarklet already active&quot;);window.aNameInstance=window.aNameInstance||{};const e=document.createElement(&quot;script&quot;);e.type=&quot;text/javascript&quot;,e.charset=&quot;UTF-8&quot;,e.src=`https://cdn.jsdelivr.net/gh/jasonday/Accessibility-Testing-Bookmarklets@master/aName.js?v=${Date.now()}`,e.onload=()=&gt;{try{console.log(&quot;Loaded aName.js&quot;),&quot;function&quot;==typeof window.aNameInstance.init?(window.aNameInstance.init(),window.aNameInstance.initialized=!0):&quot;function&quot;==typeof window.aName?(window.aName(),window.aNameInstance.initialized=!0):(window.aNameInstance.initialized=!0,console.log(&quot;aName.js auto-executed successfully&quot;))}catch(e){console.error(&quot;Error initializing aName:&quot;,e),alert(&quot;Failed to initialize aName bookmarklet&quot;)}},e.onerror=e=&gt;{console.error(&quot;Failed to load aName.js:&quot;,e),alert(&quot;Failed to load aName bookmarklet. Check your internet connection.&quot;)},document.documentElement.appendChild(e)}();}());">aName</a> to your bookmarks.
         </footer>
