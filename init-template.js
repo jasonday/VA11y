@@ -33,7 +33,9 @@ javascript: (function () {
                 console.log('aName.js auto-executed successfully');
             }
 
-            console.log('aName version:', window.aNameInstance.version || 'unknown');
+           if (window.aNameInstance.aNameVersion) {
+                console.log('aName version:', window.aNameInstance.aNameVersion);
+            }
             
         } catch (error) {
             console.error('Error initializing aName:', error);
