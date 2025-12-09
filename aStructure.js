@@ -1,4 +1,5 @@
 "use strict";
+const aStructureVersion = "1.0 beta";
 if (window.aStructureInstance) {
     window.aStructureInstance.cleanup();
 }
