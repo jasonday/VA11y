@@ -66,7 +66,7 @@ function aStructure() {
         let label = document.createElement('span');
         label.className = 'aStructure-label';
         label.textContent = labelText;
-        label.style.backgroundColor = 'black;
+        label.style.backgroundColor = 'black';
         label.style.color = 'yellowgreen';
         label.style.fontSize = '10px';
         label.style.position = 'absolute';
