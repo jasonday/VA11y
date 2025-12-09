@@ -6,5 +6,5 @@ Often taken from other bookmarklets and then heavily altering for my use cases.
 ## Bookmarklets
 - aName - Shows the various pieces for accessible name calculation; includes state, role, element, etc.
 - aImage - Shows the text alternatives, image type, and text alternative reference for all image types
-- aStructure - Highlight the structural elements in the page
+- aStructure - Highlights the structural elements in the page
 
