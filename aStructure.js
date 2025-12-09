@@ -11,13 +11,13 @@ function aStructure() {
         'application', 'article', 'blockquote', 'caption', 'cell', 'columnheader', 'definition', 'deletion',
         'directory', 'document', 'emphasis', 'feed', 'figure', 'generic', 'group', 'heading', 'img',
         'insertion', 'list', 'listitem', 'math', 'meter', 'none', 'note', 'paragraph', 'presentation',
-        'row', 'rowgroup', 'rowheader', 'separator', 'strong', 'subscript', 'superscript', 'table',
+        'row', 'rowgroup', 'rowheader', 'radiogroup', 'separator', 'strong', 'subscript', 'superscript', 'table',
         'term', 'time', 'toolbar', 'tooltip'
     ];
     const semanticElements = [
         'header', 'nav', 'main', 'article', 'section', 'aside', 'footer',
         'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'p', 'ul', 'ol', 'li', 'blockquote',
-        'figure', 'figcaption', 'time', 'address', 'details', 'summary'
+        'figure', 'figcaption', 'time', 'address', 'details', 'summary', 'fieldset', 'legend'
     ];
     let highlightedElements = [];
     const elementsToHighlight = new Map();
@@ -59,15 +59,14 @@ function aStructure() {
             originalPosition
         });
 
-        element.style.outline = '1px dashed black';
-        element.style.boxShadow = '0px 0px 1px white';
+        element.style.border = '1px solid blue';
         element.style.position = 'relative';
 
         let label = document.createElement('span');
         label.className = 'aStructure-label';
         label.textContent = labelText;
-        label.style.backgroundColor = 'black';
-        label.style.color = 'yellowgreen';
+        label.style.backgroundColor = 'lightblue';
+        label.style.color = 'black';
         label.style.fontSize = '10px';
         label.style.position = 'absolute';
         label.style.top = '0';
