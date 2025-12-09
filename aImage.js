@@ -91,14 +91,20 @@ function aImage() {
 
     function getImageInfo(element) {
         if (!element) {
-            return {
-                alt: 'N/A',
-                source: 'N/A',
-                type: 'N/A'
-            };
+            return { alt: 'N/A', source: 'N/A', type: 'N/A' };
         }
 
         const tagName = element.tagName.toLowerCase();
+
+        if (tagName === 'picture') {
+            const img = element.querySelector('img');
+            if (img) {
+                const imgInfo = getImageInfo(img);
+                imgInfo.type = '<picture>'; // Always report type as picture
+                return imgInfo;
+            }
+        }
+
         let role = element.getAttribute('role');
         let type = tagName;
 
@@ -106,7 +112,6 @@ function aImage() {
         const isImg = tagName === 'img';
         const isSvg = tagName === 'svg';
         const isFigure = tagName === 'figure';
-        const isPicture = tagName === 'picture';
         const isImageRole = role === 'img';
         const isInputImage = tagName === 'input' && element.type === 'image';
         const isObject = tagName === 'object';
@@ -115,13 +120,15 @@ function aImage() {
         const hasBackgroundImage = window.getComputedStyle(element).backgroundImage !== 'none';
 
         if (isImg) {
-            type = '<img>';
+            if (element.parentElement && element.parentElement.tagName.toLowerCase() === 'picture') {
+                type = '<picture>';
+            } else {
+                type = '<img>';
+            }
         } else if (isSvg) {
             type = '<svg>';
         } else if (isFigure) {
             type = '<figure>';
-        } else if (isPicture) {
-            type = '<picture>';
         } else if (isInputImage) {
             type = '<input type="image">';
         } else if (isObject) {
@@ -135,11 +142,7 @@ function aImage() {
         } else if (hasBackgroundImage) {
             type = 'CSS Background Image';
         } else {
-            return {
-                alt: 'Not an image',
-                source: 'N/A',
-                type: 'N/A'
-            };
+            return { alt: 'Not an image', source: 'N/A', type: 'N/A' };
         }
 
         // Alt text calculation
@@ -158,8 +161,14 @@ function aImage() {
             alt = element.getAttribute('aria-label');
             source = 'aria-label';
         } else if (element.hasAttribute('alt')) {
-            alt = element.getAttribute('alt');
-            source = 'alt attribute';
+            const altAttr = element.getAttribute('alt');
+            if (altAttr === '') {
+                alt = 'Image is decorative';
+                source = 'alt=""';
+            } else {
+                alt = altAttr;
+                source = 'alt attribute';
+            }
         } else if (element.hasAttribute('title')) {
             alt = element.getAttribute('title');
             source = 'title attribute';
@@ -174,24 +183,12 @@ function aImage() {
             }
         }
 
-        // For <picture>, find the <img> element inside
-        if (isPicture) {
-            const img = element.querySelector('img');
-            if (img) {
-                return getImageInfo(img); // Recursive call to get info from the actual <img>
-            }
-        }
-
         if (!alt) {
             alt = 'No alt text found';
             source = 'N/A';
         }
 
-        return {
-            alt,
-            source,
-            type
-        };
+        return { alt, source, type };
     }
 
     function dragElement(elmnt) {
