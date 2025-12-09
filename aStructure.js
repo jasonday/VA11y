@@ -59,14 +59,15 @@ function aStructure() {
             originalPosition
         });
 
-        element.style.border = '1px solid blue';
+        element.style.outline = '1px dashed black';
+        element.style.boxShadow = '0px 0px 1px white';
         element.style.position = 'relative';
 
         let label = document.createElement('span');
         label.className = 'aStructure-label';
         label.textContent = labelText;
-        label.style.backgroundColor = 'lightblue';
-        label.style.color = 'black';
+        label.style.backgroundColor = 'black;
+        label.style.color = 'yellowgreen';
         label.style.fontSize = '10px';
         label.style.position = 'absolute';
         label.style.top = '0';
