@@ -137,7 +137,7 @@ function va11y() {
             pointer-events: none;
             z-index: 2147483640;
         }
-        .va11y-heading-label {
+        .va11y-heading-label. .va11y-structure-label {
             position: absolute;
             background: orange;
             color: black;
@@ -168,18 +168,6 @@ function va11y() {
         .va11y-structure-highlight {
             outline: 1px dashed black !important;
             box-shadow: 0px 0px 0px 1px white !important;
-        }
-        .va11y-structure-label {
-            background-color: black;
-            color: yellowgreen;
-            font-size: 10px;
-            line-height: 16px;
-            position: absolute;
-            padding: 0 4px;
-            white-space: nowrap;
-            border: 1px solid white;
-            box-sizing: border-box;
-            pointer-events: auto;
         }
         
         /* Module: aName focus styles */
