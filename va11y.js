@@ -204,7 +204,7 @@ function va11y() {
         fab.id = FAB_ID;
         fab.innerHTML = FAB_ICON + '<span>VA11y</span>';
         fab.setAttribute("role", "button");
-        fab.setAttribute("aria-label", "Open Accessibility Tools");
+        fab.setAttribute("aria-label", "VA11y open bookmarklet");
         fab.setAttribute("aria-expanded", "false");
         fab.tabIndex = 0;
         fab.onclick = togglePanel;
@@ -375,7 +375,6 @@ function va11y() {
 
                     el.classList.add('va11y-name-focus');
                     // Remove class on blur? Or keep it to show history? aName keeps simple history.
-                    // We'll remove previous focus style slightly? No, stick to aName logic but cleaner.
 
                     const info = getAccessibleName(el);
                     const li = document.createElement("li");
