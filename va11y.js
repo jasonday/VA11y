@@ -16,7 +16,7 @@ function va11y() {
     const PANEL_WIDTH = 450;
 
     // Universal Access Icon (Unicode or simplistic SVG in data URI could be used, utilizing Unicode ♿ for simplicity)
-    const FAB_ICON = "♿";
+    const FAB_ICON = "data:image/svg+xml,%3Csvg%20id%3D%22Layer_1%22%20data-name%3D%22Layer%201%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%20122.88%20122.88%22%3E%3Ctitle%3Eaccessibility%3C%2Ftitle%3E%3Cpath%20d%3D%22M61.44%2C0A61.46%2C61.46%2C0%2C1%2C1%2C18%2C18%2C61.21%2C61.21%2C0%2C0%2C1%2C61.44%2C0Zm-.39%2C74.18L52.1%2C98.91a4.94%2C4.94%2C0%2C0%2C1-2.58%2C2.83A5%2C5%2C0%2C0%2C1%2C42.7%2C95.5l6.24-17.28a26.3%2C26.3%2C0%2C0%2C0%2C1.17-4%2C40.64%2C40.64%2C0%2C0%2C0%2C.54-4.18c.24-2.53.41-5.27.54-7.9s.22-5.18.29-7.29c.09-2.63-.62-2.8-2.73-3.3l-.44-.1-18-3.39A5%2C5%2C0%2C0%2C1%2C27.08%2C46a5%2C5%2C0%2C0%2C1%2C5.05-7.74l19.34%2C3.63c.77.07%2C1.52.16%2C2.31.25a57.64%2C57.64%2C0%2C0%2C0%2C7.18.53A81.13%2C81.13%2C0%2C0%2C0%2C69.9%2C42c.9-.1%2C1.75-.21%2C2.6-.29l18.25-3.42A5%2C5%2C0%2C0%2C1%2C94.5%2C39a5%2C5%2C0%2C0%2C1%2C1.3%2C7%2C5%2C5%2C0%2C0%2C1-3.21%2C2.09L75.15%2C51.37c-.58.13-1.1.22-1.56.29-1.82.31-2.72.47-2.61%2C3.06.08%2C1.89.31%2C4.15.61%2C6.51.35%2C2.77.81%2C5.71%2C1.29%2C8.4.31%2C1.77.6%2C3.19%2C1%2C4.55s.79%2C2.75%2C1.39%2C4.42l6.11%2C16.9a5%2C5%2C0%2C0%2C1-6.82%2C6.24%2C4.94%2C4.94%2C0%2C0%2C1-2.58-2.83L63%2C74.23%2C62%2C72.4l-1%2C1.78Zm.39-53.52a8.83%2C8.83%2C0%2C1%2C1-6.24%2C2.59%2C8.79%2C8.79%2C0%2C0%2C1%2C6.24-2.59Zm36.35%2C4.43a51.42%2C51.42%2C0%2C1%2C0%2C15%2C36.35%2C51.27%2C51.27%2C0%2C0%2C0-15-36.35Z%22%2F%3E%3C%2Fsvg%3E";
 
     const STYLES = `
         /* FAB */
@@ -24,14 +24,12 @@ function va11y() {
             position: fixed;
             bottom: 20px;
             right: 20px;
-            width: 60px;
-            height: 60px;
+            padding: 10px;
             background: #005fcc;
             color: white;
-            border-radius: 30px;
+            border-radius: 12px;
             text-align: center;
-            line-height: 60px;
-            font-size: 30px;
+            font-size: 24px;
             cursor: pointer;
             z-index: 2147483647;
             box-shadow: 0 4px 8px rgba(0,0,0,0.3);
@@ -217,7 +215,7 @@ function va11y() {
         // Create FAB
         fab = document.createElement("div");
         fab.id = FAB_ID;
-        fab.innerHTML = FAB_ICON + '<span style="font-size:10px;display:block;line-height:10px;margin-top:-5px;">VA11Y</span>';
+        fab.innerHTML = FAB_ICON + '<span>VA11y</span>';
         fab.setAttribute("role", "button");
         fab.setAttribute("aria-label", "Open Accessibility Tools");
         fab.setAttribute("aria-expanded", "false");
