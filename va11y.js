@@ -239,6 +239,9 @@ function va11y() {
             </div>
             <div id="${PANEL_ID}-content"></div>
             <div id="${PANEL_ID}-footer">
+                <div style="float:left">
+                    <button id="${PANEL_ID}-exit" style="background:#500;border:1px solid #722;">Exit</button>
+                </div>
                 <button id="${PANEL_ID}-close">Close Panel</button>
             </div>
         `;
@@ -267,6 +270,9 @@ function va11y() {
             });
         });
         document.getElementById(`${PANEL_ID}-close`).addEventListener("click", () => panel.classList.remove("visible"));
+        document.getElementById(`${PANEL_ID}-exit`).addEventListener("click", () => {
+            if (window.va11yInstance && window.va11yInstance.cleanup) window.va11yInstance.cleanup();
+        });
 
         // Initial Tab
         activateTab("overview");
@@ -440,36 +446,114 @@ function va11y() {
 
         image: {
             activate: (container) => {
-                container.innerHTML = `<p>Hover over any image to inspect details.</p>`;
-                const output = document.createElement("div");
-                container.appendChild(output);
+                // Create list container for history
+                const list = document.createElement("ul");
+                list.className = "va11y-list";
+                // Check if container already has our list (e.g. from previous activation without clear) - actually we clear container on tab switch.
+                container.innerHTML = "<p>Hover over any image or SVG to inspect details.</p>";
+                container.appendChild(list);
 
                 function handleHover(e) {
-                    const el = e.target;
+                    let el = e.target;
+
+                    // Traverse up if we hit a path/rect inside an SVG to find the SVG itself
+                    const svg = el.closest('svg');
+                    if (svg) el = svg;
+
                     // Detect if image-like
                     const tagName = el.tagName.toLowerCase();
                     const role = el.getAttribute('role');
-                    if (!['img', 'svg', 'figure', 'picture', 'area', 'input', 'object', 'embed'].includes(tagName) && role !== 'img') return;
+                    const validTags = ['img', 'svg', 'figure', 'picture', 'canvas', 'area', 'input', 'object', 'embed'];
 
-                    // Get Info (Simplified from aImage logic)
-                    let alt = el.getAttribute('alt');
-                    let source = 'alt attribute';
+                    if (!validTags.includes(tagName) && role !== 'img' && role !== 'figure') return;
 
-                    if (el.hasAttribute('aria-label')) { alt = el.getAttribute('aria-label'); source = 'aria-label'; }
-                    else if (el.hasAttribute('aria-labelledby')) { alt = 'aria-labelledby ref'; source = 'aria-labelledby'; } // Simplified
+                    // Get Info
+                    let name = "";
+                    let source = "";
+                    let url = "";
 
-                    if (alt === "") { alt = "Decorative (empty alt)"; source = 'alt=""'; }
-                    if (alt === null && !el.hasAttribute('aria-label')) { alt = "Missing Alt"; source = "N/A"; }
+                    // URL / Source
+                    if (tagName === 'img' || tagName === 'input') {
+                        url = el.src;
+                    } else if (tagName === 'object' || tagName === 'embed') {
+                        url = el.data || el.src;
+                    } else if (tagName === 'svg') {
+                        url = "SVG (Internal/Inline)";
+                    }
 
-                    output.innerHTML = `
-                        <ul class="va11y-list">
-                            <li>
-                                <div><strong>Image:</strong> &lt;${tagName}&gt;</div>
-                                <div><strong>Alt:</strong> ${alt || 'null'}</div>
-                                <div><strong>Source:</strong> ${source}</div>
-                            </li>
-                        </ul>
-                    `;
+                    // Truncate URL
+                    if (url && url.length > 50) url = url.substring(0, 47) + "...";
+
+                    // Accessible Name Calculation
+                    // 1. aria-labelledby
+                    if (el.hasAttribute('aria-labelledby')) {
+                        const ids = el.getAttribute('aria-labelledby').split(' ');
+                        const root = el.getRootNode();
+                        const texts = ids.map(id => root.querySelector(`#${id}`)?.textContent.trim() || "").join(" ");
+                        if (texts) {
+                            name = texts;
+                            source = "aria-labelledby";
+                        }
+                    }
+                    // 2. aria-label
+                    if (!name && el.hasAttribute('aria-label')) {
+                        name = el.getAttribute('aria-label');
+                        source = "aria-label";
+                    }
+                    // 3. alt (for img, area, input)
+                    if (!name && (tagName === 'img' || tagName === 'area' || (tagName === 'input' && el.type === 'image'))) {
+                        if (el.hasAttribute('alt')) {
+                            name = el.getAttribute('alt');
+                            source = "alt attribute";
+                            if (name === "") {
+                                name = "Decorative (empty alt)";
+                                source = 'alt=""';
+                            }
+                        } else {
+                            name = "Missing Alt"; // Failure
+                            source = "N/A";
+                        }
+                    }
+                    // 4. SVG specific: <title> or <desc>
+                    if (!name && tagName === 'svg') {
+                        const title = el.querySelector('title');
+                        const desc = el.querySelector('desc');
+                        if (title && title.textContent.trim()) {
+                            name = title.textContent.trim();
+                            source = "&lt;title&gt;";
+                        } else if (desc && desc.textContent.trim()) {
+                            name = desc.textContent.trim();
+                            source = "&lt;desc&gt;";
+                        }
+                    }
+                    // 5. title attribute (fallback)
+                    if (!name && !source && el.hasAttribute('title')) {
+                        name = el.getAttribute('title');
+                        source = "title attribute";
+                    }
+
+                    // If nothing found for SVG
+                    if (!name && tagName === 'svg') {
+                        name = "No Accessible Name";
+                        source = "N/A";
+                    }
+
+                    // Create List Item
+                    const li = document.createElement("li");
+
+                    // Status Color
+                    let statusClass = "va11y-good";
+                    if (name === "Missing Alt" || name === "No Accessible Name") statusClass = "va11y-bad";
+                    if (name === "Decorative (empty alt)") statusClass = "va11y-warn";
+
+                    li.innerHTML = `
+                    <div><strong class="${statusClass}">Image: &lt;${tagName}&gt;</strong></div>
+                    <div>Name: "${name}" <small>(${source})</small></div>
+                    ${url ? `<div><small style="color:#aaa;word-break:break-all;">${url}</small></div>` : ''}
+                `;
+
+                    // Prepend to list (History behavior)
+                    list.insertBefore(li, list.firstChild);
                 }
 
                 traverseShadow(document, (root) => {
