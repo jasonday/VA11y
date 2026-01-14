@@ -1,0 +1,11 @@
+            - name: jsDelivr Cache Purge
+  # You may pin to the exact commit or the version.
+  # uses: kaycodes13/purge-jsdelivr-cache@7e9b647414bbde07d4b593405c5a036bd30c597e
+  uses: kaycodes13/purge-jsdelivr-cache@v1.1.0
+  with:
+    # URLs for the cache purging (string|list)
+    url: https://cdn.jsdelivr.net/gh/jasonday/Accessibility-Testing-Bookmarklets@latest/va11y.js
+    # Retry attempts (on the request failing) (integer)
+    attempts: # optional, default is 3
+          
+          
