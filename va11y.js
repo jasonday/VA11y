@@ -1,5 +1,5 @@
 "use strict";
-const va11yVersion = "1.0 beta";
+const va11yVersion = "1.1 beta";
 
 // Singleton to prevent multiple instances
 if (window.va11yInstance) {
