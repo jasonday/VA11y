@@ -224,10 +224,8 @@ function va11y() {
             </div>
             <div id="${PANEL_ID}-content"></div>
             <div id="${PANEL_ID}-footer">
-                <div style="float:left">
-                    <button id="${PANEL_ID}-exit" style="background:#500;border:1px solid #722;">Exit</button>
-                </div>
                 <button id="${PANEL_ID}-close">Close Panel</button>
+                <button id="${PANEL_ID}-exit">Exit</button>
             </div>
         `;
         document.body.appendChild(panel);
