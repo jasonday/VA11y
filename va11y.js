@@ -967,6 +967,10 @@ function va11y() {
         if (panel) panel.remove();
         if (document.getElementById(OVERLAY_CONTAINER_ID)) document.getElementById(OVERLAY_CONTAINER_ID).remove();
 
+        // Remove the script tag that loaded va11y.js to allow re-initialization
+        const script = document.getElementById("va11y-script");
+        if (script) script.remove();
+
         window.va11yInstance = null;
     }
 
