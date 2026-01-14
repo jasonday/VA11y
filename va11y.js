@@ -76,7 +76,7 @@ function va11y() {
             overflow: hidden;
             flex-shrink: 0;
         }
-        .va11y-tab {
+        #${PANEL_ID}.va11y-tab {
             flex: 1;
             padding: 10px 5px;
             background: #333;
@@ -88,9 +88,9 @@ function va11y() {
             font-size: 12px;
             border-right: 1px solid #444;
         }
-        .va11y-tab:last-child { border-right: none; }
-        .va11y-tab:hover { background: #444; color: white; }
-        .va11y-tab.active {
+        #${PANEL_ID}.va11y-tab:last-child { border-right: none; }
+        #${PANEL_ID}.va11y-tab:hover { background: #444; color: white; }
+        #${PANEL_ID}.va11y-tab.active {
             background: #005fcc;
             color: white;
         }
