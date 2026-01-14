@@ -137,7 +137,7 @@ function va11y() {
             pointer-events: none;
             z-index: 2147483640;
         }
-        .va11y-heading-label. .va11y-structure-label {
+        .va11y-heading-label, .va11y-structure-label {
             position: absolute;
             background: orange;
             color: black;
