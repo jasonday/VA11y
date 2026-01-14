@@ -1,0 +1,42 @@
+name: Main Workflow
+
+on:
+  push:
+    branches:
+      - main
+    # You can further restrict by paths if desired:
+    # paths:
+    #   - va11y.js
+  workflow_dispatch:
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      # Checkout repository
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      # (Insert your existing build/deploy steps here)
+      # Example:
+      # - name: Build
+      #   run: npm install && npm run build
+
+      # Check if va11y.js changed in the push
+      - name: Check if va11y.js changed
+        id: js_change
+        run: |
+          if git diff --name-only ${{ github.event.before }} ${{ github.sha }} | grep "va11y.js"; then
+            echo "changed=true" >> $GITHUB_OUTPUT
+          else
+            echo "changed=false" >> $GITHUB_OUTPUT
+          fi
+
+      # Purge jsDelivr cache only if va11y.js was updated
+      - name: Purge jsDelivr Cache
+        if: steps.js_change.outputs.changed == 'true'
+        uses: kaycodes13/purge-jsdelivr-cache@v1.1.0
+        with:
+          url: https://cdn.jsdelivr.net/gh/jasonday/VA11y@latest/va11y.js
+          
