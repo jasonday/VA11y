@@ -38,5 +38,7 @@ jobs:
         if: steps.js_change.outputs.changed == 'true'
         uses: kaycodes13/purge-jsdelivr-cache@v1.1.0
         with:
-          url: https://cdn.jsdelivr.net/gh/jasonday/VA11y@latest/va11y.js
+          url: |
+            https://cdn.jsdelivr.net/gh/jasonday/VA11y@latest/va11y.js
+            https://cdn.jsdelivr.net/gh/jasonday/VA11y@latest/va11y.min.js
           
