@@ -129,6 +129,15 @@
                 </svg> (SVG with No Name)
             </div>
 
+            <h3>Input Filtering</h3>
+            <div class="pass">
+                <input type="image" src="https://via.placeholder.com/50" alt="Submit Button Image"> (Input type="image"
+                - SUCESS)
+            </div>
+            <div class="pass">
+                <input type="text" value="Should be ignored by Image Module"> (Input type="text" - IGNORED)
+            </div>
+
         </section>
 
         <!-- 3. Headings Module Tests -->
@@ -138,6 +147,8 @@
             <h3>Structure</h3>
             <h4>H4 following H2 (Skipped Level)</h4>
             <h6>H6 following H4 (Skipped Level)</h6>
+
+            <h3>Escaping Check: &lt;span&gt;Tags&lt;/span&gt;</h3>
 
             <h3>Empty Headings</h3>
             <h5></h5> (Empty H5)

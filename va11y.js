@@ -17,7 +17,9 @@ function va11y() {
 
     // Universal Access Icon 
     const FAB_ICON = "";
-    const STYLES = `
+
+    // UI STYLES (Injected into Shadow DOM)
+    const UI_STYLES = `
         /* FAB */
         #${FAB_ID} {
             position: fixed;
@@ -35,6 +37,10 @@ function va11y() {
             border: 2px solid white;
             user-select: none;
             transition: transform 0.2s;
+            box-sizing: border-box; 
+            width: 50px; 
+            height: 50px;
+            line-height: normal;
         }
         #${FAB_ID}:hover {
             transform: scale(1.1);
@@ -128,8 +134,10 @@ function va11y() {
         .va11y-good { color: #99f170; font-weight: bold; }
         .va11y-bad { color: #ff8888; font-weight: bold; }
         .va11y-warn { color: #ffcc00; font-weight: bold; }
-        
-        /* Module: aHeading Overlay */
+    `;
+
+    // OVERLAY STYLES (Injected into Light DOM)
+    const OVERLAY_STYLES = `
         .va11y-heading-highlight {
             position: absolute;
             background: rgba(255, 230, 0, 0.2);
@@ -179,7 +187,7 @@ function va11y() {
     `;
 
     // --- State & DOM ---
-    let fab, panel, contentArea;
+    let host, shadow, fab, panel, contentArea;
     let activeModule = null;
     let overlayContainer = null;
 
@@ -194,11 +202,24 @@ function va11y() {
     // --- Core UI Functions ---
 
     function createUI() {
-        // Inject Styles
-        const style = document.createElement("style");
-        style.id = "va11y-styles";
-        style.textContent = STYLES;
-        document.head.appendChild(style);
+        // Create Host
+        host = document.createElement("div");
+        host.id = "va11y-host";
+        document.body.appendChild(host);
+
+        // Create Shadow Root
+        shadow = host.attachShadow({ mode: "open" });
+
+        // Inject UI Styles into Shadow
+        const uiStyle = document.createElement("style");
+        uiStyle.textContent = UI_STYLES;
+        shadow.appendChild(uiStyle);
+
+        // Inject Overlay Styles into Light DOM
+        const overlayStyle = document.createElement("style");
+        overlayStyle.id = "va11y-overlay-styles";
+        overlayStyle.textContent = OVERLAY_STYLES;
+        document.head.appendChild(overlayStyle);
 
         // Create FAB
         fab = document.createElement("div");
@@ -210,7 +231,7 @@ function va11y() {
         fab.tabIndex = 0;
         fab.onclick = togglePanel;
         fab.onkeypress = (e) => { if (e.key === "Enter" || e.key === " ") togglePanel(); }
-        document.body.appendChild(fab);
+        shadow.appendChild(fab);
 
         // Create Panel
         panel = document.createElement("div");
@@ -229,9 +250,9 @@ function va11y() {
                 <button id="${PANEL_ID}-exit">Exit</button>
             </div>
         `;
-        document.body.appendChild(panel);
+        shadow.appendChild(panel);
 
-        contentArea = document.getElementById(`${PANEL_ID}-content`);
+        contentArea = shadow.getElementById(`${PANEL_ID}-content`);
 
         // Event Listeners
         const tabs = panel.querySelectorAll(".va11y-tab");
@@ -253,8 +274,8 @@ function va11y() {
                 }
             });
         });
-        document.getElementById(`${PANEL_ID}-close`).addEventListener("click", () => panel.classList.remove("visible"));
-        document.getElementById(`${PANEL_ID}-exit`).addEventListener("click", () => {
+        shadow.getElementById(`${PANEL_ID}-close`).addEventListener("click", () => panel.classList.remove("visible"));
+        shadow.getElementById(`${PANEL_ID}-exit`).addEventListener("click", () => {
             if (window.va11yInstance && window.va11yInstance.cleanup) window.va11yInstance.cleanup();
         });
 
@@ -341,6 +362,16 @@ function va11y() {
         return style.display !== 'none' && style.visibility !== 'hidden' && style.opacity !== '0';
     }
 
+    function escapeHtml(str) {
+        if (!str) return '';
+        return str
+            .replace(/&/g, "&amp;")
+            .replace(/</g, "&lt;")
+            .replace(/>/g, "&gt;")
+            .replace(/"/g, "&quot;")
+            .replace(/'/g, "&#039;");
+    }
+
     // --- MODULES ---
 
     const moduleModules = {
@@ -399,8 +430,8 @@ function va11y() {
 
                     li.innerHTML = `
                         <div><strong>${status}</strong> &lt;${el.tagName.toLowerCase()}&gt;</div>
-                        <div>Name: "${info.name}" <small>(${info.source})</small></div>
-                        <div>Role: ${role}</div>
+                        <div>Name: "${escapeHtml(info.name)}" <small>(${escapeHtml(info.source)})</small></div>
+                        <div>Role: ${escapeHtml(role)}</div>
                         ${stateHtml}
                         ${descHtml}
                     `;
@@ -449,6 +480,7 @@ function va11y() {
                     const validTags = ['img', 'svg', 'figure', 'picture', 'canvas', 'area', 'input', 'object', 'embed'];
 
                     if (!validTags.includes(tagName) && role !== 'img' && role !== 'figure') return;
+                    if (tagName === 'input' && el.type !== 'image') return;
 
                     // Get Info
                     let name = "";
@@ -531,8 +563,8 @@ function va11y() {
 
                     li.innerHTML = `
                     <div><strong class="${statusClass}">Image: &lt;${tagName}&gt;</strong></div>
-                    <div>Name: "${name}" <small>(${source})</small></div>
-                    ${url ? `<div><small style="color:#aaa;word-break:break-all;">${url}</small></div>` : ''}
+                    <div>Name: "${escapeHtml(name)}" <small>(${escapeHtml(source)})</small></div>
+                    ${url ? `<div><small style="color:#aaa;word-break:break-all;">${escapeHtml(url)}</small></div>` : ''}
                 `;
 
                     // Prepend to list (History behavior)
@@ -636,7 +668,7 @@ function va11y() {
                     if (lastLevel > 0 && h.level > lastLevel + 1) warnings += ` <span class="va11y-warn">[Skipped Level]</span>`;
                     if (!h.text) warnings += ` <span class="va11y-bad">[Empty]</span>`;
 
-                    li.innerHTML = `<strong>H${h.level}</strong> ${h.text || "<em>(Empty)</em>"} ${warnings}`;
+                    li.innerHTML = `<strong>H${h.level}</strong> ${escapeHtml(h.text) || "<em>(Empty)</em>"} ${warnings}`;
                     ul.appendChild(li);
                     lastLevel = h.level;
                 });
@@ -960,10 +992,9 @@ function va11y() {
         if (activeModule && moduleModules[activeModule]) {
             moduleModules[activeModule].deactivate();
         }
-        if (document.getElementById("va11y-styles")) document.getElementById("va11y-styles").remove();
-        if (fab) fab.remove();
-        if (panel) panel.remove();
         if (document.getElementById(OVERLAY_CONTAINER_ID)) document.getElementById(OVERLAY_CONTAINER_ID).remove();
+        if (document.getElementById("va11y-overlay-styles")) document.getElementById("va11y-overlay-styles").remove();
+        if (host) host.remove();
 
         // Remove the script tag that loaded va11y.js to allow re-initialization
         const script = document.getElementById("va11y-script");
