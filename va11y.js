@@ -130,8 +130,10 @@ function va11y() {
         /* Utility Styles from original tools */
         .va11y-list { list-style: none; margin: 0; padding: 0; }
         .va11y-list li { margin-bottom: 4px; padding: 4px; background: #222; border-left: 3px solid #555; }
+        .va11y-name .va11y-list li,
+        .va11y-image .va11y-list li { color: #999;}
         .va11y-name .va11y-list li:first-child,
-        .va11y-image .va11y-list li:first-child { border-left-color: #007bff;}
+        .va11y-image .va11y-list li:first-child { border-left-color: #007bff; color: #fff;}
         .va11y-tag { font-family: monospace; background: #333; padding: 1px 3px; border-radius: 2px; color: #fa0; }
         .va11y-good { color: #99f170; font-weight: bold; }
         .va11y-bad { color: #ff8888; font-weight: bold; }
@@ -412,6 +414,33 @@ function va11y() {
         });
     }
 
+    function getTextContent(element) {
+        // Get text content including content inside Shadow DOM
+        let text = '';
+
+        function collectText(node) {
+            // Skip aria-hidden elements
+            if (node.nodeType === Node.ELEMENT_NODE && node.getAttribute('aria-hidden') === 'true') {
+                return;
+            }
+
+            if (node.nodeType === Node.TEXT_NODE) {
+                text += node.textContent;
+            } else if (node.nodeType === Node.ELEMENT_NODE) {
+                // Check shadow root first
+                if (node.shadowRoot) {
+                    Array.from(node.shadowRoot.childNodes).forEach(collectText);
+                } else {
+                    // Regular children
+                    Array.from(node.childNodes).forEach(collectText);
+                }
+            }
+        }
+
+        collectText(element);
+        return text.trim();
+    }
+
     function getAbsRect(element) {
         const rect = element.getBoundingClientRect();
         const scrollX = window.pageXOffset || document.documentElement.scrollLeft;
@@ -690,7 +719,7 @@ function va11y() {
                             headings.push({
                                 element: node,
                                 level: level,
-                                text: node.textContent.trim(),
+                                text: getTextContent(node),
                                 tagName: tagName
                             });
                         }
