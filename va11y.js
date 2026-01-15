@@ -82,7 +82,7 @@ function va11y() {
             overflow: hidden;
             flex-shrink: 0;
         }
-        #${PANEL_ID}.va11y-tab {
+        #${PANEL_ID} .va11y-tab {
             flex: 1;
             padding: 10px 5px;
             background: #333;
@@ -94,7 +94,7 @@ function va11y() {
             font-size: 12px;
             border-right: 1px solid #444;
         }
-        #${PANEL_ID}.va11y-tab:last-child { border-right: none; }
+        #${PANEL_ID} .va11y-tab:last-child { border-right: none; }
         #${PANEL_ID}.va11y-tab:hover { background: #444; color: white; }
         #${PANEL_ID}.va11y-tab.active {
             background: #005fcc;
@@ -117,7 +117,8 @@ function va11y() {
             border-top: 1px solid #333;
             background: #222;
         }
-        #${PANEL_ID}-close {
+        #${PANEL_ID}-close,
+        #${PANEL_ID}-exit {
             background: transparent;
             border: 1px solid #555;
             color: #ddd;
@@ -125,7 +126,15 @@ function va11y() {
             border-radius: 4px;
             cursor: pointer;
         }
-        #${PANEL_ID}-close:hover { background: #333; }
+        #${PANEL_ID}-close:hover,
+        #${PANEL_ID}-exit:hover { background: #333; }
+
+        .va11y-indent-1 { margin-left: 0; border-left-color: #007bff !important; }
+        .va11y-indent-2 { margin-left: 10px; border-left-color: #28a745 !important; }
+        .va11y-indent-3 { margin-left: 20px; border-left-color: #ffc107 !important; }
+        .va11y-indent-4 { margin-left: 30px; border-left-color: #dc3545 !important; }
+        .va11y-indent-5 { margin-left: 40px; border-left-color: #17a2b8 !important; }
+        .va11y-indent-6 { margin-left: 50px; border-left-color: #6c757d !important; }
 
         /* Utility Styles from original tools */
         .va11y-list { list-style: none; margin: 0; padding: 0; }
@@ -134,6 +143,8 @@ function va11y() {
         .va11y-good { color: #99f170; font-weight: bold; }
         .va11y-bad { color: #ff8888; font-weight: bold; }
         .va11y-warn { color: #ffcc00; font-weight: bold; }
+
+        
     `;
 
     // OVERLAY STYLES (Injected into Light DOM)
@@ -156,12 +167,7 @@ function va11y() {
             z-index: 2147483641;
             pointer-events: none;
         }
-        .va11y-indent-1 { margin-left: 0; border-left-color: #007bff !important; }
-        .va11y-indent-2 { margin-left: 10px; border-left-color: #28a745 !important; }
-        .va11y-indent-3 { margin-left: 20px; border-left-color: #ffc107 !important; }
-        .va11y-indent-4 { margin-left: 30px; border-left-color: #dc3545 !important; }
-        .va11y-indent-5 { margin-left: 40px; border-left-color: #17a2b8 !important; }
-        .va11y-indent-6 { margin-left: 50px; border-left-color: #6c757d !important; }
+        
 
         /* Module: aStructure Global Overlay */
         #${OVERLAY_CONTAINER_ID} {
