@@ -130,7 +130,8 @@ function va11y() {
         /* Utility Styles from original tools */
         .va11y-list { list-style: none; margin: 0; padding: 0; }
         .va11y-list li { margin-bottom: 4px; padding: 4px; background: #222; border-left: 3px solid #555; }
-        .va11y-list li:first-child { border-left-color: #007bff;}
+        .va11y-name .va11y-list li:first-child,
+        .va11y-image .va11y-list li:first-child { border-left-color: #007bff;}
         .va11y-tag { font-family: monospace; background: #333; padding: 1px 3px; border-radius: 2px; color: #fa0; }
         .va11y-good { color: #99f170; font-weight: bold; }
         .va11y-bad { color: #ff8888; font-weight: bold; }
@@ -142,6 +143,66 @@ function va11y() {
         .va11y-indent-4 { margin-left: 30px; border-left-color: #dc3545 !important; }
         .va11y-indent-5 { margin-left: 40px; border-left-color: #17a2b8 !important; }
         .va11y-indent-6 { margin-left: 50px; border-left-color: #6c757d !important; }
+
+        /* Tools Module */
+        .va11y-tools-container { margin: 10px 0; }
+        .va11y-tools-btn {
+            padding: 8px 16px;
+            background: #005fcc;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        .va11y-tools-btn:hover { background: #004a9e; }
+        .va11y-tools-desc {
+            margin-top: 10px;
+            font-size: 12px;
+            color: #aaa;
+        }
+
+        /* ARIA Switch */
+        .va11y-switch {
+            display: inline-flex;
+            align-items: center;
+            cursor: pointer;
+            user-select: none;
+        }
+        .va11y-switch-track {
+            width: 44px;
+            height: 24px;
+            background: #555;
+            border-radius: 12px;
+            position: relative;
+            transition: background 0.2s;
+            margin-right: 8px;
+        }
+        .va11y-switch[aria-checked="true"] .va11y-switch-track {
+            background: #005fcc;
+        }
+        .va11y-switch-thumb {
+            width: 20px;
+            height: 20px;
+            background: white;
+            border-radius: 50%;
+            position: absolute;
+            top: 2px;
+            left: 2px;
+            transition: left 0.2s;
+        }
+        .va11y-switch[aria-checked="true"] .va11y-switch-thumb {
+            left: 22px;
+        }
+        .va11y-switch:focus {
+            outline: 2px solid #005fcc;
+            outline-offset: 2px;
+        }
+        .va11y-tool-desc {
+            margin-left: 52px;
+            font-size: 12px;
+            color: #aaa;
+        }
     `;
 
     // OVERLAY STYLES (Injected into Light DOM)
@@ -193,6 +254,8 @@ function va11y() {
     let host, shadow, fab, panel, contentArea;
     let activeModule = null;
     let overlayContainer = null;
+    let structureActive = false;
+    let textSpacingActive = false;
 
     // Module cleaning functions stored here
     const moduleCleanups = {
@@ -245,7 +308,7 @@ function va11y() {
                 <button class="va11y-tab" role="tab" aria-selected="false" tabindex="-1" data-tab="name">Name</button>
                 <button class="va11y-tab" role="tab" aria-selected="false" tabindex="-1" data-tab="image">Images</button>
                 <button class="va11y-tab" role="tab" aria-selected="false" tabindex="-1" data-tab="heading">Headings</button>
-                <button class="va11y-tab" role="tab" aria-selected="false" tabindex="-1" data-tab="structure">Structure</button>
+                <button class="va11y-tab" role="tab" aria-selected="false" tabindex="-1" data-tab="tools">Tools</button>
             </div>
             <div id="${PANEL_ID}-content"></div>
             <div id="${PANEL_ID}-footer">
@@ -310,8 +373,23 @@ function va11y() {
             moduleModules[activeModule].deactivate();
         }
 
+        // Clean up structure overlay when switching tabs
+        if (structureActive) {
+            deactivateStructure();
+            structureActive = false;
+        }
+
+        // Clean up text spacing when switching tabs
+        if (textSpacingActive) {
+            deactivateTextSpacing();
+            textSpacingActive = false;
+        }
+
         // Clear Content
         contentArea.innerHTML = "";
+
+        // Update content area class to reflect active tab
+        contentArea.className = `va11y-${tabName}`;
 
         // Activate new module
         activeModule = tabName;
@@ -387,7 +465,7 @@ function va11y() {
                         <li><strong>Name:</strong> Inspect accessible names of the focused element. Tab through the page to see results.</li>
                         <li><strong>Images:</strong> Hover over images to see alt text, type, and source.</li>
                         <li><strong>Headings:</strong> Visualizes heading structure and warns on errors.</li>
-                        <li><strong>Structure:</strong> Overlays labels for landmarks and semantic structural elements.</li>
+                        <li><strong>Tools:</strong> Testing tools and utilities.</li>
                     </ul>
                     <p>Select a tab above to begin.</p>
                 `;
@@ -399,6 +477,7 @@ function va11y() {
             activate: (container) => {
                 const list = document.createElement("ul");
                 list.className = "va11y-list";
+                container.innerHTML = "<p>Focus any element to inspect accessible name.</p>";
                 container.appendChild(list);
 
                 function handleFocus() {
@@ -696,114 +775,221 @@ function va11y() {
             }
         },
 
-        structure: {
+        tools: {
             activate: (container) => {
-                container.innerHTML = "<p>Showing structural overlays on page...</p>";
+                container.innerHTML = `
+                    <h3>Tools</h3>
+                    <ul class="va11y-list">
+                        <li>
+                            <div role="switch" 
+                                 aria-checked="${structureActive}" 
+                                 aria-labelledby="structure-label"
+                                 aria-describedby="structure-desc"
+                                 class="va11y-switch" 
+                                 id="structure-switch"
+                                 tabindex="0">
+                                <span class="va11y-switch-track">
+                                    <span class="va11y-switch-thumb"></span>
+                                </span>
+                                <span id="structure-label">Page structure</span>
+                            </div>
+                            <div id="structure-desc" class="va11y-tool-desc">
+                                Displays labels for landmarks and semantic elements
+                            </div>
+                        </li>
+                        <li>
+                            <div role="switch" 
+                                 aria-checked="${textSpacingActive}" 
+                                 aria-labelledby="textspacing-label"
+                                 class="va11y-switch" 
+                                 id="textspacing-switch"
+                                 tabindex="0">
+                                <span class="va11y-switch-track">
+                                    <span class="va11y-switch-thumb"></span>
+                                </span>
+                                <span id="textspacing-label">Text Spacing</span>
+                            </div>
+                            <div class="va11y-tool-desc">
+                                Applies increased spacing to test readability
+                            </div>
+                        </li>
+                    </ul>
+                `;
 
-                // Create overlay container
-                let overlay = document.getElementById(OVERLAY_CONTAINER_ID);
-                if (!overlay) {
-                    overlay = document.createElement("div");
-                    overlay.id = OVERLAY_CONTAINER_ID;
-                    document.body.appendChild(overlay);
-                }
-
-                overlay.innerHTML = ""; // Clear existing
-
-                const validElements = [];
-
-                // Lists synced from aStructure.js
-                const structuralRoles = [
-                    'banner', 'complementary', 'contentinfo', 'form', 'main', 'navigation', 'region', 'search',
-                    'application', 'article', 'blockquote', 'caption', 'cell', 'columnheader', 'definition', 'deletion',
-                    'directory', 'document', 'emphasis', 'feed', 'figure', 'generic', 'group', 'heading', 'img',
-                    'insertion', 'list', 'listitem', 'math', 'meter', 'none', 'note', 'paragraph', 'presentation',
-                    'row', 'rowgroup', 'rowheader', 'radiogroup', 'separator', 'strong', 'subscript', 'superscript', 'table',
-                    'term', 'time', 'toolbar', 'tooltip'
-                ];
-                const semanticElements = [
-                    'header', 'nav', 'main', 'article', 'section', 'aside', 'footer',
-                    'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'p', 'ul', 'ol', 'li', 'blockquote',
-                    'figure', 'figcaption', 'time', 'address', 'details', 'summary', 'fieldset', 'legend'
-                ];
-
-                function scan(root) {
-                    root.querySelectorAll('*').forEach(el => {
-                        let label = "";
-                        const role = el.getAttribute('role');
-                        const tag = el.tagName.toLowerCase();
-
-                        // Logic synced from aStructure.js
-                        if (structuralRoles.includes(role)) {
-                            label = `role="${role}"`;
-                        } else if (semanticElements.includes(tag)) {
-                            label = `<${tag}>`;
-                        }
-
-                        if (label && isVisible(el)) {
-                            validElements.push({ element: el, label });
-                        }
-
-                        if (el.shadowRoot) scan(el.shadowRoot);
-                    });
-                }
-                scan(document);
-
-                const placedRects = [];
-
-                validElements.forEach(item => {
-                    item.element.classList.add('va11y-structure-highlight');
-
-                    const labelDiv = document.createElement("div");
-                    labelDiv.className = "va11y-structure-label";
-                    labelDiv.textContent = item.label;
-
-                    const rect = getAbsRect(item.element);
-                    let top = rect.top;
-                    const left = rect.left;
-                    const height = 16;
-                    const width = 100; // estimated/measured later?
-
-                    // Collision Logic
-                    let collision = true;
-                    let attempts = 0;
-                    while (collision && attempts < 50) {
-                        collision = false;
-                        for (const p of placedRects) {
-                            if (!(left >= p.right || left + width <= p.left || top >= p.bottom || top + height <= p.top)) {
-                                collision = true;
-                                top = p.bottom + 1;
-                                break;
-                            }
-                        }
-                        attempts++;
+                // Structure switch
+                const structureSwitch = container.querySelector('#structure-switch');
+                const handleStructureToggle = () => {
+                    structureActive = !structureActive;
+                    structureSwitch.setAttribute('aria-checked', structureActive);
+                    if (structureActive) {
+                        activateStructure();
+                    } else {
+                        deactivateStructure();
                     }
-
-                    labelDiv.style.left = left + "px";
-                    labelDiv.style.top = top + "px";
-                    overlay.appendChild(labelDiv);
-
-                    // Measure actual to refine rect
-                    const finalRect = labelDiv.getBoundingClientRect(); // relative to viewport? No, absolute.
-                    // Actually getBoundingClientRect is Viewport.
-                    // But we don't need perfect precision for this loop as long as we use consistent coords.
-                    // Let's just assume height.
-                    placedRects.push({
-                        left: left, right: left + finalRect.width,
-                        top: top, bottom: top + finalRect.height
-                    });
+                };
+                structureSwitch.addEventListener('click', handleStructureToggle);
+                structureSwitch.addEventListener('keydown', (e) => {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                        e.preventDefault();
+                        handleStructureToggle();
+                    }
                 });
 
-                moduleCleanups.structure = () => {
-                    document.querySelectorAll('.va11y-structure-highlight').forEach(el => el.classList.remove('va11y-structure-highlight'));
-                    if (overlay) overlay.remove();
+                // Text spacing switch
+                const textSpacingSwitch = container.querySelector('#textspacing-switch');
+                const handleTextSpacingToggle = () => {
+                    textSpacingActive = !textSpacingActive;
+                    textSpacingSwitch.setAttribute('aria-checked', textSpacingActive);
+                    if (textSpacingActive) {
+                        activateTextSpacing();
+                    } else {
+                        deactivateTextSpacing();
+                    }
                 };
+                textSpacingSwitch.addEventListener('click', handleTextSpacingToggle);
+                textSpacingSwitch.addEventListener('keydown', (e) => {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                        e.preventDefault();
+                        handleTextSpacingToggle();
+                    }
+                });
             },
             deactivate: () => {
-                if (moduleCleanups.structure) moduleCleanups.structure();
+                // Tools remain active when switching tabs
+            }
+        },
+
+        structure: {
+            activate: (container) => {
+                // This is now handled by the Tools tab
+
+            },
+            deactivate: () => {
+                // Structure cleanup is now manual via Tools toggle
             }
         }
     };
+
+    // --- Structure Functions (standalone) ---
+    function activateStructure() {
+        // Create overlay container
+        let overlay = document.getElementById(OVERLAY_CONTAINER_ID);
+        if (!overlay) {
+            overlay = document.createElement("div");
+            overlay.id = OVERLAY_CONTAINER_ID;
+            document.body.appendChild(overlay);
+        }
+
+        overlay.innerHTML = ""; // Clear existing
+
+        const validElements = [];
+
+        // Lists synced from aStructure.js
+        const structuralRoles = [
+            'banner', 'complementary', 'contentinfo', 'form', 'main', 'navigation', 'region', 'search',
+            'application', 'article', 'blockquote', 'caption', 'cell', 'columnheader', 'definition', 'deletion',
+            'directory', 'document', 'emphasis', 'feed', 'figure', 'generic', 'group', 'heading', 'img',
+            'insertion', 'list', 'listitem', 'math', 'meter', 'none', 'note', 'paragraph', 'presentation',
+            'row', 'rowgroup', 'rowheader', 'radiogroup', 'separator', 'strong', 'subscript', 'superscript', 'table',
+            'term', 'time', 'toolbar', 'tooltip'
+        ];
+        const semanticElements = [
+            'header', 'nav', 'main', 'article', 'section', 'aside', 'footer',
+            'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'p', 'ul', 'ol', 'li', 'blockquote',
+            'figure', 'figcaption', 'time', 'address', 'details', 'summary', 'fieldset', 'legend'
+        ];
+
+        function scan(root) {
+            root.querySelectorAll('*').forEach(el => {
+                let label = "";
+                const role = el.getAttribute('role');
+                const tag = el.tagName.toLowerCase();
+
+                // Logic synced from aStructure.js
+                if (structuralRoles.includes(role)) {
+                    label = `role="${role}"`;
+                } else if (semanticElements.includes(tag)) {
+                    label = `<${tag}>`;
+                }
+
+                if (label && isVisible(el)) {
+                    validElements.push({ element: el, label });
+                }
+
+                if (el.shadowRoot) scan(el.shadowRoot);
+            });
+        }
+        scan(document);
+
+        const placedRects = [];
+
+        validElements.forEach(item => {
+            item.element.classList.add('va11y-structure-highlight');
+
+            const labelDiv = document.createElement("div");
+            labelDiv.className = "va11y-structure-label";
+            labelDiv.textContent = item.label;
+
+            const rect = getAbsRect(item.element);
+            let top = rect.top;
+            const left = rect.left;
+            const height = 16;
+            const width = 100;
+
+            // Collision Logic
+            let collision = true;
+            let attempts = 0;
+            while (collision && attempts < 50) {
+                collision = false;
+                for (const p of placedRects) {
+                    if (!(left >= p.right || left + width <= p.left || top >= p.bottom || top + height <= p.top)) {
+                        collision = true;
+                        top = p.bottom + 1;
+                        break;
+                    }
+                }
+                attempts++;
+            }
+
+            labelDiv.style.left = left + "px";
+            labelDiv.style.top = top + "px";
+            overlay.appendChild(labelDiv);
+
+            const finalRect = labelDiv.getBoundingClientRect();
+            placedRects.push({
+                left: left, right: left + finalRect.width,
+                top: top, bottom: top + finalRect.height
+            });
+        });
+    }
+
+    function deactivateStructure() {
+        document.querySelectorAll('.va11y-structure-highlight').forEach(el => el.classList.remove('va11y-structure-highlight'));
+        const overlay = document.getElementById(OVERLAY_CONTAINER_ID);
+        if (overlay) overlay.remove();
+    }
+
+    // --- Text Spacing Functions (based on WCAG 1.4.12) ---
+    function activateTextSpacing() {
+        const style = document.createElement('style');
+        style.id = 'va11y-text-spacing';
+        style.textContent = `
+            * {
+                line-height: 1.5 !important;
+                letter-spacing: 0.12em !important;
+                word-spacing: 0.16em !important;
+            }
+            p {
+                margin-bottom: 2em !important;
+            }
+        `;
+        document.head.appendChild(style);
+    }
+
+    function deactivateTextSpacing() {
+        const style = document.getElementById('va11y-text-spacing');
+        if (style) style.remove();
+    }
 
     // --- Helpers used by modules ---
     // --- Helpers used by modules (Ported from aName.js) ---
