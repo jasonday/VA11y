@@ -312,8 +312,8 @@ function va11y() {
             </div>
             <div id="${PANEL_ID}-content"></div>
             <div id="${PANEL_ID}-footer">
-                <button id="${PANEL_ID}-close">Close Panel</button>
-                <button id="${PANEL_ID}-exit">Exit</button>
+                <button id="${PANEL_ID}-close">Close VA11y Panel</button>
+                <button id="${PANEL_ID}-exit">Exit VA11y</button>
             </div>
         `;
         shadow.appendChild(panel);
