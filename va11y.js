@@ -38,8 +38,6 @@ function va11y() {
             user-select: none;
             transition: transform 0.2s;
             box-sizing: border-box; 
-            width: 50px; 
-            height: 50px;
             line-height: normal;
         }
         #${FAB_ID}:hover {
@@ -95,8 +93,8 @@ function va11y() {
             border-right: 1px solid #444;
         }
         #${PANEL_ID} .va11y-tab:last-child { border-right: none; }
-        #${PANEL_ID}.va11y-tab:hover { background: #444; color: white; }
-        #${PANEL_ID}.va11y-tab.active {
+        #${PANEL_ID} .va11y-tab:hover { background: #444; color: white; }
+        #${PANEL_ID} .va11y-tab.active {
             background: #005fcc;
             color: white;
         }
@@ -129,22 +127,21 @@ function va11y() {
         #${PANEL_ID}-close:hover,
         #${PANEL_ID}-exit:hover { background: #333; }
 
+        /* Utility Styles from original tools */
+        .va11y-list { list-style: none; margin: 0; padding: 0; }
+        .va11y-list li { margin-bottom: 4px; padding: 4px; background: #222; border-left: 3px solid #555; }
+        .va11y-list li:first-child { border-left-color: #007bff;}
+        .va11y-tag { font-family: monospace; background: #333; padding: 1px 3px; border-radius: 2px; color: #fa0; }
+        .va11y-good { color: #99f170; font-weight: bold; }
+        .va11y-bad { color: #ff8888; font-weight: bold; }
+        .va11y-warn { color: #ffcc00; font-weight: bold; }
+
         .va11y-indent-1 { margin-left: 0; border-left-color: #007bff !important; }
         .va11y-indent-2 { margin-left: 10px; border-left-color: #28a745 !important; }
         .va11y-indent-3 { margin-left: 20px; border-left-color: #ffc107 !important; }
         .va11y-indent-4 { margin-left: 30px; border-left-color: #dc3545 !important; }
         .va11y-indent-5 { margin-left: 40px; border-left-color: #17a2b8 !important; }
         .va11y-indent-6 { margin-left: 50px; border-left-color: #6c757d !important; }
-
-        /* Utility Styles from original tools */
-        .va11y-list { list-style: none; margin: 0; padding: 0; }
-        .va11y-list li { margin-bottom: 4px; padding: 4px; background: #222; border-left: 3px solid #555; }
-        .va11y-tag { font-family: monospace; background: #333; padding: 1px 3px; border-radius: 2px; color: #fa0; }
-        .va11y-good { color: #99f170; font-weight: bold; }
-        .va11y-bad { color: #ff8888; font-weight: bold; }
-        .va11y-warn { color: #ffcc00; font-weight: bold; }
-
-        
     `;
 
     // OVERLAY STYLES (Injected into Light DOM)
@@ -412,7 +409,6 @@ function va11y() {
                     if (!el) return;
 
                     el.classList.add('va11y-name-focus');
-                    // Remove class on blur? Or keep it to show history? aName keeps simple history.
 
                     const info = getAccessibleName(el);
                     const li = document.createElement("li");
@@ -445,8 +441,8 @@ function va11y() {
                     // Prepend
                     list.insertBefore(li, list.firstChild);
 
-                    // Auto-cleanup focus style on next focus?
-                    setTimeout(() => el.classList.remove('va11y-name-focus'), 2000);
+                    // Remove class on blur
+                    el.addEventListener('blur', () => el.classList.remove('va11y-name-focus'), { once: true });
                 }
 
                 // Global Focus Listener
