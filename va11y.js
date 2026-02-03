@@ -513,7 +513,7 @@ function va11y() {
             activate: (container) => {
                 const list = document.createElement("ul");
                 list.className = "va11y-list";
-                container.innerHTML = "<p>Focus any element to inspect accessible name.</p><p>Note: Accessible name calculation is approximate and may not be 100% accurate.</p>";
+                container.innerHTML = "<p>Focus any element to inspect accessible name.<br/><small>Note: Accessible name calculation is approximate and may not be 100% accurate.</small></p>";
                 container.appendChild(list);
 
                 function handleFocus() {
@@ -1044,37 +1044,41 @@ function va11y() {
     function activateTextSpacing() {
         const style = document.createElement('style');
         style.id = 'va11y-text-spacing';
-        // Use two rules for higher specificity, matching the original bookmarklet
-        style.textContent = `
-            * {
-                line-height: 1.5 !important;
-                letter-spacing: 0.12em !important;
-                word-spacing: 0.16em !important;
-            }
-            p {
-                margin-bottom: 2em !important;
-            }
-            
-            /* this hack is to override specificity of styles in shadow DOM */
-            *:not(#a #b #c #d #e #f #g #h #i) {
-                line-height: 1.5 !important;
-                letter-spacing: 0.12em !important;
-                word-spacing: 0.16em !important;
-            }
-        `;
+        style.textContent = '*{line-height:1.5 !important;letter-spacing:0.12em !important;word-spacing:0.16em !important;}p{margin-bottom:2em !important;}*:not(#a #b #c #d #e #f #g #h #i){line-height:1.5 !important;letter-spacing:0.12em !important;word-spacing:0.16em !important;}';
+
         document.head.appendChild(style);
 
-        // Apply to shadow roots recursively
-        function applyToShadowRoots(root) {
-            const elements = root.querySelectorAll('*');
-            for (const el of elements) {
+        // Internal traversal function to match original bookmarklet logic exactly
+        function applyToShadows(root) {
+            const all = root.querySelectorAll('*');
+            for (let i = 0; i < all.length; i++) {
+                const el = all[i];
                 if (el.shadowRoot) {
-                    el.shadowRoot.appendChild(style.cloneNode(true));
-                    applyToShadowRoots(el.shadowRoot);
+                    try {
+                        el.shadowRoot.appendChild(style.cloneNode(true));
+                        applyToShadows(el.shadowRoot);
+                    } catch (e) {
+                        // ignore errors
+                    }
                 }
             }
         }
-        applyToShadowRoots(document);
+
+        // Apply to main document
+        applyToShadows(document);
+
+        // Apply to iframes
+        const iframes = document.querySelectorAll('iframe');
+        iframes.forEach(iframe => {
+            try {
+                if (iframe.contentDocument) {
+                    iframe.contentDocument.head.appendChild(style.cloneNode(true));
+                    applyToShadows(iframe.contentDocument);
+                }
+            } catch (e) {
+                // ignore cross-origin errors
+            }
+        });
     }
 
     function deactivateTextSpacing() {
@@ -1082,34 +1086,57 @@ function va11y() {
         const style = document.getElementById('va11y-text-spacing');
         if (style) style.remove();
 
-        // Remove from shadow roots recursively
-        function removeFromShadowRoots(root) {
-            const elements = root.querySelectorAll('*');
-            for (const el of elements) {
+        // Remove from shadow roots
+        function removeFromShadows(root) {
+            const all = root.querySelectorAll('*');
+            for (let i = 0; i < all.length; i++) {
+                const el = all[i];
                 if (el.shadowRoot) {
-                    const shadowStyle = el.shadowRoot.getElementById('va11y-text-spacing');
-                    if (shadowStyle) shadowStyle.remove();
-                    removeFromShadowRoots(el.shadowRoot);
+                    try {
+                        const shadowStyle = el.shadowRoot.getElementById('va11y-text-spacing');
+                        if (shadowStyle) shadowStyle.remove();
+                        removeFromShadows(el.shadowRoot);
+                    } catch (e) {
+                        // ignore errors
+                    }
                 }
             }
         }
+        removeFromShadows(document);
 
-
-        // --- Grayscale Functions ---
-        function activateGrayscale() {
-            const style = document.createElement('style');
-            style.id = 'va11y-grayscale';
-            style.textContent = `
-            body {
-                filter: grayscale(1) !important;
+        // Remove from iframes
+        const iframes = document.querySelectorAll('iframe');
+        iframes.forEach(iframe => {
+            try {
+                if (iframe.contentDocument) {
+                    const iframeStyle = iframe.contentDocument.getElementById('va11y-text-spacing');
+                    if (iframeStyle) iframeStyle.remove();
+                    removeFromShadows(iframe.contentDocument);
+                }
+            } catch (e) {
+                // ignore cross-origin errors
             }
-        `;
-            document.head.appendChild(style);
-        }
+        });
+    }
 
-        function deactivateGrayscale() {
-            const style = document.getElementById('va11y-grayscale');
-            if (style) style.remove();
+    // --- Grayscale Functions ---
+    let originalHtmlFilter = null;
+
+    function activateGrayscale() {
+        // Store original filter value
+        originalHtmlFilter = document.documentElement.style.filter || '';
+        document.documentElement.style.setProperty('filter', 'grayscale(1)', 'important');
+    }
+
+    function deactivateGrayscale() {
+        // Restore original filter value
+        if (originalHtmlFilter !== null) {
+            if (originalHtmlFilter === '') {
+                document.documentElement.style.removeProperty('filter');
+            } else {
+                document.documentElement.style.setProperty('filter', originalHtmlFilter, 'important');
+            }
+            originalHtmlFilter = null;
         }
     }
 
