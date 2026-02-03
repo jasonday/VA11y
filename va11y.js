@@ -516,8 +516,8 @@ function va11y() {
                 container.innerHTML = "<p>Focus any element to inspect accessible name.<br/><small>Note: Accessible name calculation is approximate and may not be 100% accurate.</small></p>";
                 container.appendChild(list);
 
-                function handleFocus() {
-                    let el = document.activeElement;
+                function handleFocus(e) {
+                    let el = e ? e.target : document.activeElement;
                     while (el && el.shadowRoot && el.shadowRoot.activeElement) {
                         el = el.shadowRoot.activeElement;
                     }
@@ -561,12 +561,35 @@ function va11y() {
                 }
 
                 // Global Focus Listener
-                // We need to attach to shadow roots recursively? 
-                // Alternatively, use a captured 'focus' event on window? focus/blur don't bubble, but focusin does.
-                document.addEventListener('focusin', handleFocus); // Captures bubbling focus from shadow DOM in modern browsers often, but let's be safe.
+                const handleGlobalFocus = (e) => handleFocus(e);
+
+                // Attach to main document
+                document.addEventListener('focusin', handleGlobalFocus);
+
+                // Attach to all same-origin iframes
+                const attachedIframes = [];
+                const iframes = document.querySelectorAll('iframe');
+                iframes.forEach(iframe => {
+                    try {
+                        if (iframe.contentDocument) {
+                            iframe.contentDocument.addEventListener('focusin', handleGlobalFocus);
+                            attachedIframes.push(iframe.contentDocument);
+                        }
+                    } catch (e) {
+                        // Ignore cross-origin frames
+                    }
+                });
 
                 moduleCleanups.name = () => {
-                    document.removeEventListener('focusin', handleFocus);
+                    document.removeEventListener('focusin', handleGlobalFocus);
+
+                    // Remove listeners from iframes
+                    attachedIframes.forEach(doc => {
+                        try {
+                            doc.removeEventListener('focusin', handleGlobalFocus);
+                        } catch (e) { /* ignore */ }
+                    });
+
                     document.querySelectorAll('.va11y-name-focus').forEach(el => el.classList.remove('va11y-name-focus'));
                 };
             },
