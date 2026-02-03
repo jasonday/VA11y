@@ -258,6 +258,7 @@ function va11y() {
     let overlayContainer = null;
     let structureActive = false;
     let textSpacingActive = false;
+    let grayscaleActive = false;
 
     // Module cleaning functions stored here
     const moduleCleanups = {
@@ -387,6 +388,12 @@ function va11y() {
             textSpacingActive = false;
         }
 
+        // Clean up grayscale when switching tabs
+        if (grayscaleActive) {
+            deactivateGrayscale();
+            grayscaleActive = false;
+        }
+
         // Clear Content
         contentArea.innerHTML = "";
 
@@ -506,7 +513,7 @@ function va11y() {
             activate: (container) => {
                 const list = document.createElement("ul");
                 list.className = "va11y-list";
-                container.innerHTML = "<p>Focus any element to inspect accessible name.</p>";
+                container.innerHTML = "<p>Focus any element to inspect accessible name.</p><p>Note: Accessible name calculation is approximate and may not be 100% accurate.</p>";
                 container.appendChild(list);
 
                 function handleFocus() {
@@ -842,6 +849,22 @@ function va11y() {
                                 Applies increased spacing to test readability
                             </div>
                         </li>
+                        <li>
+                            <div role="switch" 
+                                 aria-checked="${grayscaleActive}" 
+                                 aria-labelledby="grayscale-label"
+                                 class="va11y-switch" 
+                                 id="grayscale-switch"
+                                 tabindex="0">
+                                <span class="va11y-switch-track">
+                                    <span class="va11y-switch-thumb"></span>
+                                </span>
+                                <span id="grayscale-label">Grayscale</span>
+                            </div>
+                            <div class="va11y-tool-desc">
+                                Removes color from the page to test color reliance.
+                            </div>
+                        </li>
                     </ul>
                 `;
 
@@ -880,6 +903,25 @@ function va11y() {
                     if (e.key === 'Enter' || e.key === ' ') {
                         e.preventDefault();
                         handleTextSpacingToggle();
+                    }
+                });
+
+                // Grayscale switch
+                const grayscaleSwitch = container.querySelector('#grayscale-switch');
+                const handleGrayscaleToggle = () => {
+                    grayscaleActive = !grayscaleActive;
+                    grayscaleSwitch.setAttribute('aria-checked', grayscaleActive);
+                    if (grayscaleActive) {
+                        activateGrayscale();
+                    } else {
+                        deactivateGrayscale();
+                    }
+                };
+                grayscaleSwitch.addEventListener('click', handleGrayscaleToggle);
+                grayscaleSwitch.addEventListener('keydown', (e) => {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                        e.preventDefault();
+                        handleGrayscaleToggle();
                     }
                 });
             },
@@ -1002,6 +1044,7 @@ function va11y() {
     function activateTextSpacing() {
         const style = document.createElement('style');
         style.id = 'va11y-text-spacing';
+        // Use two rules for higher specificity, matching the original bookmarklet
         style.textContent = `
             * {
                 line-height: 1.5 !important;
@@ -1011,16 +1054,65 @@ function va11y() {
             p {
                 margin-bottom: 2em !important;
             }
+            
+            /* this hack is to override specificity of styles in shadow DOM */
+            *:not(#a #b #c #d #e #f #g #h #i) {
+                line-height: 1.5 !important;
+                letter-spacing: 0.12em !important;
+                word-spacing: 0.16em !important;
+            }
         `;
         document.head.appendChild(style);
+
+        // Apply to shadow roots recursively
+        function applyToShadowRoots(root) {
+            const elements = root.querySelectorAll('*');
+            for (const el of elements) {
+                if (el.shadowRoot) {
+                    el.shadowRoot.appendChild(style.cloneNode(true));
+                    applyToShadowRoots(el.shadowRoot);
+                }
+            }
+        }
+        applyToShadowRoots(document);
     }
 
     function deactivateTextSpacing() {
+        // Remove from main document
         const style = document.getElementById('va11y-text-spacing');
         if (style) style.remove();
+
+        // Remove from shadow roots recursively
+        function removeFromShadowRoots(root) {
+            const elements = root.querySelectorAll('*');
+            for (const el of elements) {
+                if (el.shadowRoot) {
+                    const shadowStyle = el.shadowRoot.getElementById('va11y-text-spacing');
+                    if (shadowStyle) shadowStyle.remove();
+                    removeFromShadowRoots(el.shadowRoot);
+                }
+            }
+        }
+
+
+        // --- Grayscale Functions ---
+        function activateGrayscale() {
+            const style = document.createElement('style');
+            style.id = 'va11y-grayscale';
+            style.textContent = `
+            body {
+                filter: grayscale(1) !important;
+            }
+        `;
+            document.head.appendChild(style);
+        }
+
+        function deactivateGrayscale() {
+            const style = document.getElementById('va11y-grayscale');
+            if (style) style.remove();
+        }
     }
 
-    // --- Helpers used by modules ---
     // --- Helpers used by modules (Ported from aName.js) ---
 
     function getAccessibleName(element) {
