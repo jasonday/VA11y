@@ -46,90 +46,22 @@
     <article id="va11y">
       <h3>VA11y</h3>
       <p>
-        VA11y is a unified accessibility testing tool that combines the features of aName, aImage, aHeading, and
-        aStructure into a single, comprehensive bookmarklet. It provides checks for accessible names, image text
-        alternatives, heading structure, and semantic page structure, all within a convenient tabbed interface.
+        VA11y is a unified accessibility testing tool. It provides checks for accessible names, image text
+        alternatives, heading structure, semantic page structure, text-spacing, and grayscale.
       </p>
       <p>
         <a href="https://jasonday.github.io/VA11y/test_va11y_comprehensive.html" target="_blank">View the Comprehensive
           Test Page</a>
       </p>
       <footer>
-        Drag <a
-          href="javascript:(function(){!function(){&quot;use strict&quot;;const e=document.createElement(&quot;script&quot;);e.id=&quot;va11y-script&quot;;e.type=&quot;text/javascript&quot;,e.charset=&quot;UTF-8&quot;,e.src=`https://cdn.jsdelivr.net/gh/jasonday/VA11y@latest/va11y.js`,e.onload=()=>{console.log(&quot;Loaded va11y.js&quot;);if(typeof va11yVersion!==&quot;undefined&quot;)console.log(&quot;VA11y version:&quot;,va11yVersion)},e.onerror=e=>{console.error(&quot;Failed to load va11y.js:&quot;,e),alert(&quot;Failed to load va11y bookmarklet.&quot;)},document.documentElement.appendChild(e)}();}());">VA11y</a>
-        to your bookmarks.
+        <p> Drag <a
+            href="javascript:(function(){!function(){&quot;use strict&quot;;const e=document.createElement(&quot;script&quot;);e.id=&quot;va11y-script&quot;;e.type=&quot;text/javascript&quot;,e.charset=&quot;UTF-8&quot;,e.src=`https://cdn.jsdelivr.net/gh/jasonday/VA11y@latest/va11y.js`,e.onload=()=>{console.log(&quot;Loaded va11y.js&quot;);if(typeof va11yVersion!==&quot;undefined&quot;)console.log(&quot;VA11y version:&quot;,va11yVersion)},e.onerror=e=>{console.error(&quot;Failed to load va11y.js:&quot;,e),alert(&quot;Failed to load va11y bookmarklet.&quot;)},document.documentElement.appendChild(e)}();}());">VA11y</a>
+          to your bookmarks.</p>
       </footer>
     </article>
     <!-- ./ Article-->
 
-    <!-- Article-->
-    <article id="aName">
-      <h3>aName</h3>
-      <p>
-        aName reports an approximation of the accessible name of the focused element. It returns the text label, where
-        that's defined, the focused element type, any attached descriptions, and the current state if applicable. For
-        elements within the shadow DOM, aName inspects both the focused element and its host to determine attribute
-        states. It also attempts to resolve names from slot references and distributed text content.
-      </p>
-      <p>
-        Notes:
-      <ul>
-        <li>Because accessible name computation can vary across browsers and component implementations, results may not
-          always be consistent or cover every possible shadow DOM permutation.</li>
-        <li>To get the state calculation, [TAB] away and then back to the element</li>
-      </ul>
-      </p>
-      <footer>
-        Drag <a
-          href="javascript:(function(){!function(){&quot;use strict&quot;;if(window.aNameInstance?.initialized)return void console.warn(&quot;aName bookmarklet already active&quot;);window.aNameInstance=window.aNameInstance||{};const e=document.createElement(&quot;script&quot;);e.type=&quot;text/javascript&quot;,e.charset=&quot;UTF-8&quot;,e.src=`https://cdn.jsdelivr.net/gh/jasonday/Accessibility-Testing-Bookmarklets@latest/aName.js?v=${Date.now()}`,e.onload=()=&gt;{try{console.log(&quot;Loaded aName.js&quot;),&quot;function&quot;==typeof window.aNameInstance.init?(window.aNameInstance.init(),window.aNameInstance.initialized=!0):&quot;function&quot;==typeof window.aName?(window.aName(),window.aNameInstance.initialized=!0):(window.aNameInstance.initialized=!0,console.log(&quot;aName.js auto-executed successfully&quot;)),aNameVersion&amp;&amp;console.log(&quot;aName version:&quot;,aNameVersion)}catch(e){console.error(&quot;Error initializing aName:&quot;,e),alert(&quot;Failed to initialize aName bookmarklet&quot;)}},e.onerror=e=&gt;{console.error(&quot;Failed to load aName.js:&quot;,e),alert(&quot;Failed to load aName bookmarklet. Check your internet connection.&quot;)},document.documentElement.appendChild(e)}();}());">aName</a>
-        to your bookmarks.
-      </footer>
-    </article>
-    <!-- ./ Article-->
-    <!-- Article-->
-    <article id="aImage">
-      <h3>aImage</h3>
-      <p>
-        aImage reports the text alternative, the image type, and the source of the text alternative for all images,
-        including identifying decorative images and images within the Shadow DOM. Hover over an image for more
-        information.
-      </p>
-      <footer>
-        Drag <a
-          href="javascript:(function(){!function(){&quot;use strict&quot;;if(window.aImageInstance?.initialized)return void console.warn(&quot;aImage bookmarklet already active&quot;);window.aImageInstance=window.aImageInstance||{};const e=document.createElement(&quot;script&quot;);e.type=&quot;text/javascript&quot;,e.charset=&quot;UTF-8&quot;,e.src=`https://cdn.jsdelivr.net/gh/jasonday/Accessibility-Testing-Bookmarklets@latest/aImage.js?v=${Date.now()}`,e.onload=()=&gt;{try{console.log(&quot;Loaded aImage.js&quot;),&quot;function&quot;==typeof window.aImageInstance.init?(window.aImageInstance.init(),window.aImageInstance.initialized=!0):&quot;function&quot;==typeof window.aImage?(window.aImage(),window.aImageInstance.initialized=!0):(window.aImageInstance.initialized=!0,console.log(&quot;aImage.js auto-executed successfully&quot;)),aImageVersion&amp;&amp;console.log(&quot;aImage version:&quot;,aImageVersion)}catch(e){console.error(&quot;Error initializing aImage:&quot;,e),alert(&quot;Failed to initialize aImage bookmarklet&quot;)}},e.onerror=e=&gt;{console.error(&quot;Failed to load aImage.js:&quot;,e),alert(&quot;Failed to load aImage bookmarklet. Check your internet connection.&quot;)},document.documentElement.appendChild(e)}();}());">aImage</a>
-        to your bookmarks.
-      </footer>
-    </article>
-    <!-- ./ Article-->
-    <!-- Article-->
-    <article id="aStructure">
-      <h3>aStructure</h3>
-      <p>
-        aStructure highlights the semantic structural elements of a page, including role elements and elements in the
-        Shadow DOM.
-      </p>
-      <footer>
-        Drag <a
-          href="javascript:(function(){!function(){&quot;use strict&quot;;if(window.aStructureInstance?.initialized)return void console.warn(&quot;aStructure bookmarklet already active&quot;);window.aStructureInstance=window.aStructureInstance||{};const t=document.createElement(&quot;script&quot;);t.type=&quot;text/javascript&quot;,t.charset=&quot;UTF-8&quot;,t.src=`https://cdn.jsdelivr.net/gh/jasonday/Accessibility-Testing-Bookmarklets@latest/aStructure.js?v=${Date.now()}`,t.onload=()=&gt;{try{console.log(&quot;Loaded aStructure.js&quot;),&quot;function&quot;==typeof window.aStructureInstance.init?(window.aStructureInstance.init(),window.aStructureInstance.initialized=!0):&quot;function&quot;==typeof window.aStructure?(window.aStructure(),window.aStructureInstance.initialized=!0):(window.aStructureInstance.initialized=!0,console.log(&quot;aStructure.js auto-executed successfully&quot;)),aStructureVersion&amp;&amp;console.log(&quot;aStructure version:&quot;,aStructureVersion)}catch(t){console.error(&quot;Error initializing aStructure:&quot;,t),alert(&quot;Failed to initialize aStructure bookmarklet&quot;)}},t.onerror=t=&gt;{console.error(&quot;Failed to load aStructure.js:&quot;,t),alert(&quot;Failed to load aStructure bookmarklet. Check your internet connection.&quot;)},document.documentElement.appendChild(t)}();}());">aStructure</a>
-        to your bookmarks.
-      </footer>
-    </article>
-    <!-- ./ Article-->
-    <!-- Article-->
-    <article id="aHeading">
-      <h3>aHeading</h3>
-      <p>
-        aHeading detects and outlines all headings on a page, including those within the Shadow DOM. It highlights
-        headings, provides a visual outline, and warns about missing H1s, skipped levels, or empty headings.
-      </p>
-      <footer>
-        Drag <a
-          href="javascript:(function(){!function(){&quot;use strict&quot;;if(window.aHeadingInstance?.initialized)return void console.warn(&quot;aHeading bookmarklet already active&quot;);window.aHeadingInstance=window.aHeadingInstance||{};const t=document.createElement(&quot;script&quot;);t.type=&quot;text/javascript&quot;,t.charset=&quot;UTF-8&quot;,t.src=`https://cdn.jsdelivr.net/gh/jasonday/Accessibility-Testing-Bookmarklets@latest/aHeading.js?v=${Date.now()}`,t.onload=()=&gt;{try{console.log(&quot;Loaded aHeading.js&quot;),&quot;function&quot;==typeof window.aHeadingInstance.init?(window.aHeadingInstance.init(),window.aHeadingInstance.initialized=!0):&quot;function&quot;==typeof window.aHeading?(window.aHeading(),window.aHeadingInstance.initialized=!0):(window.aHeadingInstance.initialized=!0,console.log(&quot;aHeading.js auto-executed successfully&quot;)),aHeadingVersion&amp;&amp;console.log(&quot;aHeading version:&quot;,aHeadingVersion)}catch(t){console.error(&quot;Error initializing aHeading:&quot;,t),alert(&quot;Failed to initialize aHeading bookmarklet&quot;)}},t.onerror=t=&gt;{console.error(&quot;Failed to load aHeading.js:&quot;,t),alert(&quot;Failed to load aHeading bookmarklet. Check your internet connection.&quot;)},document.documentElement.appendChild(t)}();}());">aHeading</a>
-        to your bookmarks.
-      </footer>
-    </article>
-    <!-- ./ Article-->
-    <!-- ./ Article-->
+
 
   </main>
   <!-- ./ Main -->
